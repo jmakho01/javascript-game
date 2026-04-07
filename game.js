@@ -17,9 +17,7 @@ function updateDisplay() {
 }
 
 function buyUpgrade(id) {
-	console.log(id);
 	const found = upgrades.find((fid) => fid.id == id);
-	console.log(found);
 	if (score >= found.cost) {
 		score = score - found.cost;
 		pointsPerClick = pointsPerClick + found.bonus;
