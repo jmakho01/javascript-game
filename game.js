@@ -33,7 +33,7 @@ function renderUpgrades() {
 	upgrades.forEach((el) => {
 		let div = document.createElement("div");
 		let buyBtn = document.createElement("button");
-		div.innerHTML = `<strong>${el.name}</strong>Cost: ${el.cost} | +${el.bonus} per click`;
+		div.innerHTML = `<strong>${el.name}</strong> Cost: ${el.cost} | +${el.bonus} per click `;
 		buyBtn.textContent = "Buy";
 		const found = upgrades.find((fid) => fid.id == el.id);
 		if (found.cost > score) {
