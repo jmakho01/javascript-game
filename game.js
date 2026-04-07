@@ -16,19 +16,28 @@ function updateDisplay() {
 	rateRef.textContent = `Points per click: ${pointsPerClick}`;
 }
 
-function buyUpgrade(id) {}
+function buyUpgrade(id) {
+    console.log(id);
+    const found = upgrades.find(fid => fid.id == id);
+    console.log(found);
+    if(score >= found.cost) { 
+        score = score - found.cost;
+        pointsPerClick = pointsPerClick + found.bonus;
+        updateDisplay();
+        renderUpgrades();
+    }
+}
 
 function renderUpgrades() {
 	upgradesRef.innerHTML = "";
 	upgrades.forEach((el) => {
 		let div = document.createElement("div");
-		let btn = document.createElement("button");
-		btn.textContent = "Buy";
-		btn.onclick = buyUpgrade(el.id);
-		div.innerHTML = `<p>Name: ${el.name}, Cost: ${el.cost}, Bonus: ${el.bonus}</p>`;
-		div.style = "display:flex; align-items: center; gap: 1rem;";
-		div.appendChild(btn);
-		upgradesRef.appendChild(div);
+        div.innerHTML = `
+            <strong>${el.name}</strong>
+             Cost: ${el.cost} | +${el.bonus} per click
+            <button onclick="buyUpgrade(${el.id})">Buy</button>
+            `;
+        upgradesRef.appendChild(div);
 	});
 }
 
