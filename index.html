@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>clicker-game</title>
+		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body>
 		<h1>Clicker Survival</h1>
@@ -11,8 +12,19 @@
 		<p id="score-display">Score: 0</p>
 		<p id="rate-display">Points per click: 1</p>
 		<button id="click-btn">Click</button>
-		<h1>Upgrades</h1>
-		<div id="upgrades"></div>
-		<script src="/game.js"></script>
+
+		<h1>Inventory</h1>
+		<div id="inventory">
+			<img id="green-herb" class="herb" src="images/green_herb.png" />
+			<img id="yellow-herb" class="herb" src="images/yellow_herb.png" />
+			<img id="red-herb" class="herb" src="images/red_herb.png" />
+		</div>
+
+		<h1>Mixer Table</h1>
+		<section>
+			<div id="mixer"></div>
+			<button id="mix-btn">Mix Herbs</button>
+		</section>
+		<script src="game.js"></script>
 	</body>
 </html>
