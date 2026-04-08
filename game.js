@@ -1,9 +1,8 @@
 // Game state
-let score = 0;
-let pointsPerClick = 1;
 let health = 100;
 let maxHealth = 100;
 let timeInterval = 1000;
+let isGameOver = false;
 
 let inventory = [
 	{ id: "green", name: "Green Herb", amount: 0 },
@@ -34,7 +33,6 @@ const validMixes = [
 const healthRef = document.querySelector("#health-display");
 const healthBarRef = document.querySelector("#health-bar");
 const healthNumRef = document.querySelector("#health-num-display");
-const rateRef = document.querySelector("#rate-display");
 const clickButton = document.querySelector("#click-btn");
 const herbsRef = document.querySelectorAll(".herb");
 const mixerRef = document.querySelector("#mixer");
@@ -48,10 +46,6 @@ const inventoryRefs = {
 
 // --- Central display update ---
 function updateDisplay() {
-	// Score & click rate
-	//scoreRef.textContent = `Score: ${score}`;
-	//rateRef.textContent = `Points per click: ${pointsPerClick}`;
-
 	// Health text
 	healthRef.textContent = `Health: ${health}`;
 	healthNumRef.textContent = `Health: ${health}`;
@@ -77,9 +71,18 @@ function addHerbToInventory(herbId, amount = 1) {
 
 // --- Health modifier helper ---
 function changeHealth(amount) {
+	if (isGameOver) return;
+
 	health += amount;
+
 	if (health > maxHealth) health = maxHealth;
-	if (health < 0) health = 0;
+	if (health <= 0) {
+		health = 0;
+		updateDisplay();
+		gameOver();
+		return;
+	}
+
 	updateDisplay();
 }
 
@@ -144,6 +147,8 @@ function addToMixer(herbName) {
 
 // --- Mix herbs ---
 function mixHerbs() {
+	if (isGameOver) return;
+
 	if (mixerCounter < 1) {
 		alert("Add at least 1 herb to mix!");
 		return;
@@ -187,9 +192,23 @@ function mixHerbs() {
 	mixerCounter = 0;
 }
 
+function gameOver() {
+	isGameOver = true;
+
+	// Disable interactions
+	clickButton.disabled = true;
+	mixBtnRef.disabled = true;
+	herbsRef.forEach((herb) => { herb.style.pointerEvents = "none"; });
+
+	// Overwrite health counter
+	healthNumRef.textContent = "GAME OVER";
+}
+
 // --- Event listeners ---
 clickButton.addEventListener("click", () => {
-	changeHealth(pointsPerClick);
+	if (isGameOver) return;
+
+	changeHealth(1);
 
 	const herbChance = Math.random();
 
