@@ -3,6 +3,7 @@ let score = 0;
 let pointsPerClick = 1;
 let health = 100;
 let maxHealth = 100;
+let timeInterval = 1000;
 
 let inventory = [
 	{ id: "green", name: "Green Herb", amount: 0 },
@@ -32,24 +33,46 @@ const validMixes = [
 // DOM references
 const healthRef = document.querySelector("#health-display");
 const healthBarRef = document.querySelector("#health-bar");
-const scoreRef = document.querySelector("#score-display");
+const healthNumRef = document.querySelector("#health-num-display");
 const rateRef = document.querySelector("#rate-display");
 const clickButton = document.querySelector("#click-btn");
 const herbsRef = document.querySelectorAll(".herb");
 const mixerRef = document.querySelector("#mixer");
 const mixBtnRef = document.querySelector("#mix-btn");
 
+const inventoryRefs = {
+	green: document.querySelector("#green-count"),
+	yellow: document.querySelector("#yellow-count"),
+	red: document.querySelector("#red-count"),
+};
+
 // --- Central display update ---
 function updateDisplay() {
 	// Score & click rate
-	scoreRef.textContent = `Score: ${score}`;
-	rateRef.textContent = `Points per click: ${pointsPerClick}`;
+	//scoreRef.textContent = `Score: ${score}`;
+	//rateRef.textContent = `Points per click: ${pointsPerClick}`;
 
 	// Health text
 	healthRef.textContent = `Health: ${health}`;
+	healthNumRef.textContent = `Health: ${health}`;
 
 	// Health bar width
 	healthBarRef.style.width = `${(health / maxHealth) * 100}%`;
+}
+
+function updateInventoryDisplay() {
+	inventory.forEach((herb) => {
+		const el = inventoryRefs[herb.id];
+		if (el) { el.textContent = herb.amount; }
+	});
+}
+
+function addHerbToInventory(herbId, amount = 1) {
+	const herb = inventory.find((h) => h.id === herbId);
+	if (herb) {
+		herb.amount += amount;
+		updateInventoryDisplay();
+	}
 }
 
 // --- Health modifier helper ---
@@ -61,32 +84,42 @@ function changeHealth(amount) {
 }
 
 // --- Health decay timer ---
-const healthDecay = setInterval(() => {
-	changeHealth(-1); // decrease by 1 per second
-	if (health === 0) clearInterval(healthDecay);
-}, 1000);
+function healthDecay() {
+	changeHealth(-1);
+	if (health > 0) { 
+		timeInterval -= 10; // decrease interval of time  
+		if (timeInterval < 100) { timeInterval = 100; }
+		setTimeout(healthDecay, timeInterval);
+	}
+};
 
-// --- Click to heal ---
-clickButton.addEventListener("click", () => {
-	changeHealth(pointsPerClick);
-});
+setTimeout(healthDecay, timeInterval);
 
 // --- Handle herb clicks ---
 function handleHerbClicked(hId) {
 	switch (hId) {
 		case "green-herb":
-			addToMixer("Green Herb");
+			if (useHerb("green")) addToMixer("Green Herb");
 			break;
 		case "yellow-herb":
-			addToMixer("Yellow Herb");
+			if (useHerb("yellow")) addToMixer("Yellow Herb");
 			break;
 		case "red-herb":
-			addToMixer("Red Herb");
-			break;
-		default:
-			console.log("Unknown herb clicked");
+			if (useHerb("red")) addToMixer("Red Herb");
 			break;
 	}
+}
+
+function useHerb(herbId) {
+	const herb = inventory.find((h) => h.id === herbId);
+	if (!herb || herb.amount <= 0) {
+		alert("You don't have that herb!");
+		return false;
+	}
+
+	herb.amount--;
+	updateInventoryDisplay();
+	return true;
 }
 
 // --- Add herb to mixer ---
@@ -155,9 +188,25 @@ function mixHerbs() {
 }
 
 // --- Event listeners ---
-herbsRef.forEach((herb) =>
-	herb.addEventListener("click", () => handleHerbClicked(herb.id)),
-);
+clickButton.addEventListener("click", () => {
+	changeHealth(pointsPerClick);
+
+	const herbChance = Math.random();
+
+	if (herbChance < 0.4) {
+		const herbDrop = Math.random();
+
+		if (herbDrop < 0.5) addHerbToInventory("green");
+		else if (herbDrop < 0.8) addHerbToInventory("red");
+		else addHerbToInventory("yellow");
+	}
+	updateDisplay();
+});
+
+herbsRef.forEach((herb) => {
+	herb.addEventListener("click", () => handleHerbClicked(herb.id));
+});
+
 mixBtnRef.addEventListener("click", () => mixHerbs());
 
 // --- Initial display ---
